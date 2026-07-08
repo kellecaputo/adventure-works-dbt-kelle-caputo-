@@ -9,6 +9,18 @@ models:
         tests:
           - unique
           - not_null
+      - name: product_id
+        description: "Identificador original do produto na origem."
+      - name: nome_produto
+        description: "Nome comercial do produto."
+      - name: cor_tamanho
+        description: "Combinação de cor e tamanho do produto, no formato 'cor - tamanho'."
+      - name: preco_lista
+        description: "Preço de lista (tabela) do produto, sem descontos."
+      - name: subcategoria
+        description: "Nome da subcategoria à qual o produto pertence."
+      - name: categoria
+        description: "Nome da categoria à qual o produto pertence."
 
   - name: dim_data
     description: "Dimensão de datas, construída a partir das datas de pedido, vencimento e envio."
@@ -18,6 +30,20 @@ models:
         tests:
           - unique
           - not_null
+      - name: data_completa
+        description: "Data no formato completo (ano-mês-dia)."
+      - name: dia
+        description: "Dia do mês (1 a 31)."
+      - name: mes
+        description: "Mês do ano (1 a 12)."
+      - name: ano
+        description: "Ano da data."
+      - name: trimestre
+        description: "Trimestre do ano (1 a 4)."
+      - name: dia_semana
+        description: "Dia da semana, numérico (1 a 7)."
+      - name: nome_mes
+        description: "Nome do mês por extenso, em inglês (ex: January)."
 
   - name: dim_cliente
     description: "Dimensão de clientes, com tipo (Pessoa Física ou Loja)."
@@ -27,6 +53,17 @@ models:
         tests:
           - unique
           - not_null
+      - name: customer_id
+        description: "Identificador original do cliente na origem."
+      - name: nome_completo
+        description: "Nome completo do cliente, quando Pessoa Física. Vazio quando o cliente é uma Loja."
+      - name: tipo_cliente
+        description: "Classificação do cliente: Pessoa Física, Loja ou Desconhecido."
+        tests:
+          - accepted_values:
+              values: ["Pessoa Física", "Loja", "Desconhecido"]
+      - name: store_name
+        description: "Nome da loja, quando o cliente é uma Loja. Nulo quando o cliente é Pessoa Física."
 
   - name: dim_localizacao
     description: "Dimensão de localização, com cidade, estado, país e região."
@@ -36,6 +73,18 @@ models:
         tests:
           - unique
           - not_null
+      - name: address_id
+        description: "Identificador original do endereço na origem."
+      - name: endereco
+        description: "Primeira linha do endereço."
+      - name: cidade
+        description: "Cidade do endereço."
+      - name: estado
+        description: "Estado ou província do endereço."
+      - name: pais
+        description: "País do endereço."
+      - name: regiao
+        description: "Região/território de vendas associado ao endereço."
 
   - name: dim_motivo_venda
     description: "Dimensão de motivos de venda."
@@ -45,6 +94,12 @@ models:
         tests:
           - unique
           - not_null
+      - name: sales_reason_id
+        description: "Identificador original do motivo de venda na origem."
+      - name: nome_motivo
+        description: "Nome do motivo de venda (ex: On Promotion, Price, Quality)."
+      - name: tipo_motivo
+        description: "Categoria geral do motivo de venda (ex: Promotion, Marketing, Other)."
 
   - name: dim_cartao_credito
     description: "Dimensão de cartões de crédito."
@@ -54,6 +109,10 @@ models:
         tests:
           - unique
           - not_null
+      - name: credit_card_id
+        description: "Identificador original do cartão de crédito na origem."
+      - name: tipo_cartao
+        description: "Bandeira do cartão de crédito (ex: Vista, SuperiorCard)."
 
   - name: dim_vendedor
     description: "Dimensão de vendedores, com comissão e bônus."
@@ -63,17 +122,28 @@ models:
         tests:
           - unique
           - not_null
+      - name: business_entity_id
+        description: "Identificador original do vendedor na origem."
+      - name: nome_vendedor
+        description: "Nome completo do vendedor."
+      - name: comissao
+        description: "Percentual de comissão do vendedor sobre as vendas."
+      - name: bonus
+        description: "Valor de bônus fixo recebido pelo vendedor."
 
   - name: fct_vendas
     description: "Fato de vendas, grão de um registro por item de pedido (sales_order_id + sales_order_detail_id)."
     columns:
+      - name: sales_order_id
+        description: "Identificador do pedido de venda."
+
       - name: sales_order_detail_id
         description: "Identificador do item do pedido."
         tests:
           - not_null
 
       - name: data_fk
-        description: "Chave estrangeira para dim_data."
+        description: "Chave estrangeira para dim_data, baseada na data do pedido."
         tests:
           - relationships:
               to: ref('dim_data')
@@ -95,32 +165,50 @@ models:
               field: cliente_sk
 
       - name: localizacao_fk
-        description: "Chave estrangeira para dim_localizacao."
+        description: "Chave estrangeira para dim_localizacao, baseada no endereço de cobrança do pedido."
         tests:
           - relationships:
               to: ref('dim_localizacao')
               field: localizacao_sk
 
       - name: motivo_fk
-        description: "Chave estrangeira para dim_motivo_venda."
+        description: "Chave estrangeira para dim_motivo_venda. Quando o pedido tem múltiplos motivos, prioriza-se 'On Promotion'; caso contrário, usa-se o motivo de menor ID."
         tests:
           - relationships:
               to: ref('dim_motivo_venda')
               field: motivo_sk
 
       - name: cartao_fk
-        description: "Chave estrangeira para dim_cartao_credito."
+        description: "Chave estrangeira para dim_cartao_credito. Nula quando o pedido não foi pago com cartão de crédito."
         tests:
           - relationships:
               to: ref('dim_cartao_credito')
               field: cartao_sk
 
       - name: vendedor_fk
-        description: "Chave estrangeira para dim_vendedor."
+        description: "Chave estrangeira para dim_vendedor. Nula quando o pedido não teve vendedor associado."
         tests:
           - relationships:
               to: ref('dim_vendedor')
               field: vendedor_sk
+
+      - name: quantidade_comprada
+        description: "Quantidade de unidades do produto compradas neste item do pedido."
+
+      - name: preco_unitario
+        description: "Preço unitário do produto no momento da venda."
+
+      - name: desconto_preco_unitario
+        description: "Percentual de desconto aplicado ao preço unitário."
+
+      - name: valor_total_negociado
+        description: "Valor bruto negociado (quantidade × preço unitário), sem desconto."
+
+      - name: valor_total_negociado_liquido
+        description: "Valor líquido negociado, já com o desconto aplicado."
+
+      - name: status_pedido
+        description: "Situação do pedido, traduzida do código numérico de origem (ex: Enviado, Cancelado)."
 
     tests:
       - dbt_utils.unique_combination_of_columns:
