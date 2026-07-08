@@ -1,0 +1,129 @@
+version: 2
+
+models:
+  - name: dim_produto
+    description: "Dimensão de produtos, com categoria e subcategoria."
+    columns:
+      - name: produto_sk
+        description: "Chave substituta (surrogate key) do produto."
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_data
+    description: "Dimensão de datas, construída a partir das datas de pedido, vencimento e envio."
+    columns:
+      - name: data_sk
+        description: "Chave substituta da data."
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_cliente
+    description: "Dimensão de clientes, com tipo (Pessoa Física ou Loja)."
+    columns:
+      - name: cliente_sk
+        description: "Chave substituta do cliente."
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_localizacao
+    description: "Dimensão de localização, com cidade, estado, país e região."
+    columns:
+      - name: localizacao_sk
+        description: "Chave substituta da localização."
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_motivo_venda
+    description: "Dimensão de motivos de venda."
+    columns:
+      - name: motivo_sk
+        description: "Chave substituta do motivo de venda."
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_cartao_credito
+    description: "Dimensão de cartões de crédito."
+    columns:
+      - name: cartao_sk
+        description: "Chave substituta do cartão de crédito."
+        tests:
+          - unique
+          - not_null
+
+  - name: dim_vendedor
+    description: "Dimensão de vendedores, com comissão e bônus."
+    columns:
+      - name: vendedor_sk
+        description: "Chave substituta do vendedor."
+        tests:
+          - unique
+          - not_null
+
+  - name: fct_vendas
+    description: "Fato de vendas, grão de um registro por item de pedido (sales_order_id + sales_order_detail_id)."
+    columns:
+      - name: sales_order_detail_id
+        description: "Identificador do item do pedido."
+        tests:
+          - not_null
+
+      - name: data_fk
+        description: "Chave estrangeira para dim_data."
+        tests:
+          - relationships:
+              to: ref('dim_data')
+              field: data_sk
+
+      - name: produto_fk
+        description: "Chave estrangeira para dim_produto."
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_produto')
+              field: produto_sk
+
+      - name: cliente_fk
+        description: "Chave estrangeira para dim_cliente."
+        tests:
+          - relationships:
+              to: ref('dim_cliente')
+              field: cliente_sk
+
+      - name: localizacao_fk
+        description: "Chave estrangeira para dim_localizacao."
+        tests:
+          - relationships:
+              to: ref('dim_localizacao')
+              field: localizacao_sk
+
+      - name: motivo_fk
+        description: "Chave estrangeira para dim_motivo_venda."
+        tests:
+          - relationships:
+              to: ref('dim_motivo_venda')
+              field: motivo_sk
+
+      - name: cartao_fk
+        description: "Chave estrangeira para dim_cartao_credito."
+        tests:
+          - relationships:
+              to: ref('dim_cartao_credito')
+              field: cartao_sk
+
+      - name: vendedor_fk
+        description: "Chave estrangeira para dim_vendedor."
+        tests:
+          - relationships:
+              to: ref('dim_vendedor')
+              field: vendedor_sk
+
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - sales_order_id
+            - sales_order_detail_id
