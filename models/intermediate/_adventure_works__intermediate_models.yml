@@ -1,0 +1,43 @@
+version: 2
+
+models:
+  - name: int_produto_categorizado
+    description: "Produtos unificados com sua subcategoria e categoria."
+    columns:
+      - name: product_id
+        description: "Chave primária do produto."
+        tests:
+          - unique
+          - not_null
+
+  - name: int_cliente_unificado
+    description: "Clientes unificados, com tipo derivado (Pessoa Física ou Loja) e nome completo."
+    columns:
+      - name: customer_id
+        description: "Chave primária do cliente."
+        tests:
+          - unique
+          - not_null
+      - name: customer_type
+        description: "Tipo de cliente, derivado de person_id/store_id."
+        tests:
+          - accepted_values:
+              values: ["Pessoa Física", "Loja", "Desconhecido"]
+
+  - name: int_localizacao_completa
+    description: "Endereços unificados com estado, país e região de vendas."
+    columns:
+      - name: address_id
+        description: "Chave primária do endereço."
+        tests:
+          - unique
+          - not_null
+
+  - name: int_vendedor_completo
+    description: "Vendedores unificados com nome completo, comissão e bônus."
+    columns:
+      - name: business_entity_id
+        description: "Chave primária do vendedor."
+        tests:
+          - unique
+          - not_null

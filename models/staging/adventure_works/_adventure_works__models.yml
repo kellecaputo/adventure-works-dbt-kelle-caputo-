@@ -1,0 +1,162 @@
+version: 2
+
+models:
+  - name: stg_sales_salesorderheader
+    description: "Um registro por pedido de venda (cabeçalho)."
+    columns:
+      - name: sales_order_id
+        description: "Chave primária do pedido."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_sales_salesorderdetail
+    description: "Um registro por item vendido dentro de um pedido."
+    columns:
+      - name: sales_order_detail_id
+        description: "Chave primária do item do pedido."
+        tests:
+          - unique
+          - not_null
+      - name: sales_order_id
+        description: "Chave estrangeira para o pedido (header)."
+        tests:
+          - not_null
+
+  - name: stg_production_product
+    description: "Um registro por produto."
+    columns:
+      - name: product_id
+        description: "Chave primária do produto."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_production_productsubcategory
+    description: "Um registro por subcategoria de produto."
+    columns:
+      - name: product_subcategory_id
+        description: "Chave primária da subcategoria."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_production_productcategory
+    description: "Um registro por categoria de produto."
+    columns:
+      - name: product_category_id
+        description: "Chave primária da categoria."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_sales_customer
+    description: "Um registro por cliente (pessoa física ou loja)."
+    columns:
+      - name: customer_id
+        description: "Chave primária do cliente."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_person_person
+    description: "Um registro por pessoa cadastrada no sistema."
+    columns:
+      - name: business_entity_id
+        description: "Chave primária da pessoa."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_sales_store
+    description: "Um registro por loja."
+    columns:
+      - name: business_entity_id
+        description: "Chave primária da loja."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_person_address
+    description: "Um registro por endereço."
+    columns:
+      - name: address_id
+        description: "Chave primária do endereço."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_person_stateprovince
+    description: "Um registro por estado/província."
+    columns:
+      - name: state_province_id
+        description: "Chave primária do estado/província."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_person_countryregion
+    description: "Um registro por país/região. O código de país nulo da Namíbia foi corrigido nesta camada com COALESCE, já que o código ISO 'NA' era interpretado como valor nulo na origem."
+    columns:
+      - name: country_region_code
+        description: "Chave primária do país/região."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_sales_salesreason
+    description: "Um registro por motivo de venda."
+    columns:
+      - name: sales_reason_id
+        description: "Chave primária do motivo de venda."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_sales_salesorderheadersalesreason
+    description: "Tabela de ligação muitos-para-muitos entre pedido e motivo de venda."
+    columns:
+      - name: sales_order_id
+        description: "Chave estrangeira para o pedido."
+        tests:
+          - not_null
+      - name: sales_reason_id
+        description: "Chave estrangeira para o motivo de venda."
+        tests:
+          - not_null
+
+  - name: stg_sales_creditcard
+    description: "Um registro por cartão de crédito."
+    columns:
+      - name: credit_card_id
+        description: "Chave primária do cartão de crédito."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_sales_salesperson
+    description: "Um registro por vendedor."
+    columns:
+      - name: business_entity_id
+        description: "Chave primária do vendedor."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_humanresources_employee
+    description: "Um registro por funcionário."
+    columns:
+      - name: business_entity_id
+        description: "Chave primária do funcionário."
+        tests:
+          - unique
+          - not_null
+
+  - name: stg_sales_salesterritory
+    description: "Um registro por território/região de vendas."
+    columns:
+      - name: territory_id
+        description: "Chave primária do território."
+        tests:
+          - unique
+          - not_null

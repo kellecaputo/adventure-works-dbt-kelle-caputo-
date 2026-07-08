@@ -46,9 +46,17 @@ final as (
         {{ dbt_utils.generate_surrogate_key(['detalhe.product_id']) }} as produto_fk,
         {{ dbt_utils.generate_surrogate_key(['pedido.customer_id']) }} as cliente_fk,
         {{ dbt_utils.generate_surrogate_key(['pedido.bill_to_address_id']) }} as localizacao_fk,
-        {{ dbt_utils.generate_surrogate_key(['motivo_principal.sales_reason_id']) }} as motivo_fk,
-        {{ dbt_utils.generate_surrogate_key(['pedido.credit_card_id']) }} as cartao_fk,
-        {{ dbt_utils.generate_surrogate_key(['pedido.sales_person_id']) }} as vendedor_fk,
+        case when motivo_principal.sales_reason_id is null then null
+             else {{ dbt_utils.generate_surrogate_key(['motivo_principal.sales_reason_id']) }}
+        end as motivo_fk,
+
+        case when pedido.credit_card_id is null then null
+             else {{ dbt_utils.generate_surrogate_key(['pedido.credit_card_id']) }}
+        end as cartao_fk,
+
+        case when pedido.sales_person_id is null then null
+             else {{ dbt_utils.generate_surrogate_key(['pedido.sales_person_id']) }}
+        end as vendedor_fk,
 
         detalhe.order_quantity as quantidade_comprada,
         detalhe.unit_price as preco_unitario,
